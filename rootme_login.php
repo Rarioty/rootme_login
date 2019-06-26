@@ -29,8 +29,9 @@ function get_request($url)
 {
 	$curl = curl_init($url);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt ($curl, CURLOPT_COOKIEJAR, COOKIE_FILE);
-	curl_setopt( $curl, CURLOPT_COOKIEFILE, COOKIE_FILE );
+	curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+	curl_setopt($curl, CURLOPT_COOKIEJAR, COOKIE_FILE);
+	curl_setopt($curl, CURLOPT_COOKIEFILE, COOKIE_FILE );
 
 	$result = curl_exec($curl);
 	curl_close($curl);
@@ -48,11 +49,13 @@ function post_request($url, $fields)
 {
 	$fields_string = urlify($fields);
 	$curl = curl_init($url);
-	curl_setopt($curl,CURLOPT_URL, $url);
-	curl_setopt($curl,CURLOPT_POST, count($fields));
-	curl_setopt($curl,CURLOPT_POSTFIELDS, $fields_string);
-	curl_setopt ($curl, CURLOPT_COOKIEJAR, COOKIE_FILE);
-	curl_setopt( $curl, CURLOPT_COOKIEFILE, COOKIE_FILE );
+	curl_setopt($curl, CURLOPT_URL,            $url);
+	curl_setopt($curl, CURLOPT_CUSTOMREQUEST,  "POST");
+	curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+	curl_setopt($curl, CURLOPT_POSTFIELDS,     $fields_string);
+	curl_setopt($curl, CURLOPT_POSTREDIR,      3);
+	curl_setopt($curl, CURLOPT_COOKIEJAR,      COOKIE_FILE);
+	curl_setopt($curl, CURLOPT_COOKIEFILE,     COOKIE_FILE );
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
 	$result = curl_exec($curl);
@@ -161,6 +164,7 @@ $PASSWORD = input_password();
 
 $html = get_request(LOGIN_URL);
 $token = parse_form_action_args($html);
+echo "[+] Token: $token\n";
 $user_infos = get_info_user($LOGIN);
 $password = gen_password($user_infos, $PASSWORD);
 $result = connexion($token, $LOGIN, $password);
